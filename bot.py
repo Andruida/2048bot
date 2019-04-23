@@ -44,7 +44,7 @@ except FileNotFoundError:
 
 bot = commands.Bot(command_prefix=prefix)
 
-games = {"2048":{"4x4": []}}
+games = {"2048":{"4x4": {}}}
 
 @bot.event
 async def on_message(message):
@@ -90,11 +90,7 @@ async def on_reaction(payload, action):
 		#traceback.print_exc()
 		pass
 	else:
-		match = None
-		for session in games["2048"]["4x4"]:
-			if session["message"].id == payload.message_id:
-				match = session
-				break
+		match = games["2048"]["4x4"].get(str(payload.user_id))
 		if match != None:
 			if payload.emoji.is_unicode_emoji() and payload.emoji.name == "➡" and match["player"].id == payload.user_id: # jobbra
 				match["board"], _ = game.move_right(match["board"])
@@ -117,7 +113,7 @@ async def on_reaction(payload, action):
 					title="Gratulálunk, nyertél!")
 				embed.set_footer(icon_url= match["player"].avatar_url, text=match["player"].display_name)
 				await message.channel.send(embed=embed)
-				games["2048"]["4x4"].remove(match)
+				del games["2048"]["4x4"][str(payload.user_id)]
 			elif over and not win:
 				embed = discord.Embed(
 					color=0xf3b221, 
@@ -125,20 +121,43 @@ async def on_reaction(payload, action):
 					description="Nincs több lépés!")
 				embed.set_footer(icon_url= match["player"].avatar_url, text=match["player"].display_name)
 				await message.channel.send(embed=embed)
-				games["2048"]["4x4"].remove(match)
+				del games["2048"]["4x4"][str(payload.user_id)]
 				
 				
 				
-@bot.command(name="2048")
+@bot.group(name="2048")
 async def game2048command(ctx):
+	if ctx.invoked_subcommand == None:
+		match = games["2048"]["4x4"].get(str(ctx.message.author.id))
+		if match == None:
+			session = game.create_game()
+			answer = await ctx.send(print_game(session))
+			games["2048"]["4x4"][str(ctx.message.author.id)] = {"board": session, "message": answer, "player":ctx.message.author}
+			await answer.add_reaction("➡") # jobbra
+			await answer.add_reaction("⬅") # balra
+			await answer.add_reaction("⬆") # fel
+			await answer.add_reaction("⬇") # le
+		else:
+			await match["message"].edit(content="Játék máshol folytatásra került.", delete_after=20.0)
+			await ctx.send("Megkezdett játék folytatva, új játék kezdéséhez: `;2048 new`", delete_after=5.0)
+			answer = await ctx.send(print_game(match["board"]))
+			match["message"] = answer
+			await answer.add_reaction("➡") # jobbra
+			await answer.add_reaction("⬅") # balra
+			await answer.add_reaction("⬆") # fel
+			await answer.add_reaction("⬇") # le
+			
+
+@game2048command.command()
+async def new(ctx):
+	match = games["2048"]["4x4"].get(str(ctx.message.author.id))
 	session = game.create_game()
 	answer = await ctx.send(print_game(session))
-	games["2048"]["4x4"].append({"board": session, "message": answer, "player":ctx.message.author})
+	games["2048"]["4x4"][str(ctx.message.author.id)] = {"board": session, "message": answer, "player":ctx.message.author}
 	await answer.add_reaction("➡") # jobbra
 	await answer.add_reaction("⬅") # balra
 	await answer.add_reaction("⬆") # fel
 	await answer.add_reaction("⬇") # le
-	
 
 def equalize_number_length(num, length):
 	num = str(num) if num != 0 else " "
