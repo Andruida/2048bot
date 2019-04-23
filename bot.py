@@ -92,18 +92,18 @@ async def on_reaction(payload, action):
 	else:
 		match = games["2048"]["4x4"].get(str(payload.user_id))
 		if match != None:
-			if payload.emoji.is_unicode_emoji() and payload.emoji.name == "➡" and match["player"].id == payload.user_id: # jobbra
+			if payload.emoji.is_unicode_emoji() and payload.emoji.name == "➡" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # jobbra
 				match["board"], _ = game.move_right(match["board"])
 				await match["message"].edit(content=print_game(match["board"]))
 				# print(jobbra)
 				# print(json.dumps(games, indent=4))
-			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬅" and match["player"].id == payload.user_id: # balra
+			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬅" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # balra
 				match["board"], _ = game.move_left(match["board"])
 				await match["message"].edit(content=print_game(match["board"]))
-			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬆" and match["player"].id == payload.user_id: # fel
+			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬆" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # fel
 				match["board"], _ = game.move_up(match["board"])
 				await match["message"].edit(content=print_game(match["board"]))
-			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬇" and match["player"].id == payload.user_id: # le
+			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬇" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # le
 				match["board"], _ = game.move_down(match["board"])
 				await match["message"].edit(content=print_game(match["board"]))
 			over, win = game.is_over(match["board"])
