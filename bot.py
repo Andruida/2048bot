@@ -169,7 +169,7 @@ def equalize_number_length(num, length):
 	
 def print_game(board):
 	txt = "```JSON\n"
-	length = 4
+	length = 6
 	for row in board:
 		# sor = [equalize_number_length(x, length) for x in row]
 		txt += (" | ".join(["{"+str(x)+"}" for x in range(len(row))]).format(*[equalize_number_length(x, length) for x in row])) +"\n"
