@@ -142,7 +142,8 @@ def move_left(game):
 				row[x] = row[x+1]
 				row[x+1] = 0
 				modified = True
-	put_number_on_board(game)
+	if modified:
+		put_number_on_board(game)
 	return game, modified, point
 
 
@@ -175,7 +176,8 @@ def move_right(game):
 				row[x] = row[x-1]
 				row[x-1] = 0
 				modified = True
-	put_number_on_board(game)
+	if modified:
+		put_number_on_board(game)
 	return game, modified, point
 	
 def move_up(game):
