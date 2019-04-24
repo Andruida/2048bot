@@ -93,24 +93,29 @@ async def on_reaction(payload, action):
 		match = games["2048"]["4x4"].get(str(payload.user_id))
 		if match != None:
 			if payload.emoji.is_unicode_emoji() and payload.emoji.name == "➡" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # jobbra
-				match["board"], _ = game.move_right(match["board"])
-				await match["message"].edit(content=print_game(match["board"]))
+				match["board"], _, point = game.move_right(match["board"])
+				match["points"] += point
+				await match["message"].edit(content=print_game(match["board"]).format(match["player"].display_name, str(match["points"])+(" (+"+str(point)+")" if point != 0 else "")))
 				# print(jobbra)
 				# print(json.dumps(games, indent=4))
 			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬅" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # balra
-				match["board"], _ = game.move_left(match["board"])
-				await match["message"].edit(content=print_game(match["board"]))
+				match["board"], _, point = game.move_left(match["board"])
+				match["points"] += point
+				await match["message"].edit(content=print_game(match["board"]).format(match["player"].display_name, str(match["points"])+(" (+"+str(point)+")" if point != 0 else "")))
 			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬆" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # fel
-				match["board"], _ = game.move_up(match["board"])
-				await match["message"].edit(content=print_game(match["board"]))
+				match["board"], _, point = game.move_up(match["board"])
+				match["points"] += point
+				await match["message"].edit(content=print_game(match["board"]).format(match["player"].display_name, str(match["points"])+(" (+"+str(point)+")" if point != 0 else "")))
 			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬇" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # le
-				match["board"], _ = game.move_down(match["board"])
-				await match["message"].edit(content=print_game(match["board"]))
+				match["board"], _, point = game.move_down(match["board"])
+				match["points"] += point
+				await match["message"].edit(content=print_game(match["board"]).format(match["player"].display_name, str(match["points"])+(" (+"+str(point)+")" if point != 0 else "")))
 			over, win = game.is_over(match["board"])
 			if over and win:
 				embed = discord.Embed(
 					color=0xf3b221, 
-					title="Gratulálunk, nyertél!")
+					title="Gratulálunk, nyertél!",
+					description="Pontszámod: {0}".format(str(match["points"])))
 				embed.set_footer(icon_url= match["player"].avatar_url, text=match["player"].display_name)
 				await message.channel.send(embed=embed)
 				del games["2048"]["4x4"][str(payload.user_id)]
@@ -118,7 +123,7 @@ async def on_reaction(payload, action):
 				embed = discord.Embed(
 					color=0xf3b221, 
 					title="Ssjnos vesztettél!",
-					description="Nincs több lépés!")
+					description="Nincs több lépés!\nPontszámod: {0}".format(str(match["points"])))
 				embed.set_footer(icon_url= match["player"].avatar_url, text=match["player"].display_name)
 				await message.channel.send(embed=embed)
 				del games["2048"]["4x4"][str(payload.user_id)]
@@ -131,8 +136,8 @@ async def game2048command(ctx):
 		match = games["2048"]["4x4"].get(str(ctx.message.author.id))
 		if match == None:
 			session = game.create_game()
-			answer = await ctx.send(print_game(session))
-			games["2048"]["4x4"][str(ctx.message.author.id)] = {"board": session, "message": answer, "player":ctx.message.author}
+			answer = await ctx.send(print_game(session).format(ctx.message.author.display_name, str(0)))
+			games["2048"]["4x4"][str(ctx.message.author.id)] = {"board": session, "message": answer, "player":ctx.message.author, "points":0}
 			await answer.add_reaction("➡") # jobbra
 			await answer.add_reaction("⬅") # balra
 			await answer.add_reaction("⬆") # fel
@@ -140,7 +145,7 @@ async def game2048command(ctx):
 		else:
 			await match["message"].edit(content="Játék máshol folytatásra került.", delete_after=20.0)
 			await ctx.send("Megkezdett játék folytatva, új játék kezdéséhez: `;2048 new`", delete_after=5.0)
-			answer = await ctx.send(print_game(match["board"]))
+			answer = await ctx.send(print_game(match["board"]).format(match["player"].display_name, str(match["points"])))
 			match["message"] = answer
 			await answer.add_reaction("➡") # jobbra
 			await answer.add_reaction("⬅") # balra
@@ -150,10 +155,11 @@ async def game2048command(ctx):
 
 @game2048command.command()
 async def new(ctx):
-	match = games["2048"]["4x4"].get(str(ctx.message.author.id))
+	#match = games["2048"]["4x4"].get(str(ctx.message.author.id))
 	session = game.create_game()
-	answer = await ctx.send(print_game(session))
-	games["2048"]["4x4"][str(ctx.message.author.id)] = {"board": session, "message": answer, "player":ctx.message.author}
+	await ctx.send("Új játékot kezdtél!", delete_after=5.0)
+	answer = await ctx.send(print_game(session).format(ctx.message.author.display_name, str(0)))
+	games["2048"]["4x4"][str(ctx.message.author.id)] = {"board": session, "message": answer, "player":ctx.message.author, "points":0}
 	await answer.add_reaction("➡") # jobbra
 	await answer.add_reaction("⬅") # balra
 	await answer.add_reaction("⬆") # fel
@@ -168,11 +174,11 @@ def equalize_number_length(num, length):
 			
 	
 def print_game(board):
-	txt = "```JSON\n"
+	txt = "Jelenlegi játékos: {0}\nPontszám: {1}\n```JSON\n"
 	length = 6
 	for row in board:
 		# sor = [equalize_number_length(x, length) for x in row]
-		txt += (" | ".join(["{"+str(x)+"}" for x in range(len(row))]).format(*[equalize_number_length(x, length) for x in row])) +"\n"
+		txt += (" | ".join(["{"+str(x)+"}" for x in range(len(row))]).format(*[equalize_number_length(x, length) for x in row])) +" |\n"
 		
 	return txt + "```"
 

@@ -40,13 +40,13 @@ def is_over(game):
 	if not free_space(game):
 		import copy
 		gameCopy = copy.deepcopy(game)
-		_, succes_r = move_right(gameCopy)
+		_, succes_r, _ = move_right(gameCopy)
 		gameCopy = copy.deepcopy(game)
-		_, succes_l = move_left(gameCopy)
+		_, succes_l, _ = move_left(gameCopy)
 		gameCopy = copy.deepcopy(game)
-		_, succes_d = move_down(gameCopy)
+		_, succes_d, _ = move_down(gameCopy)
 		gameCopy = copy.deepcopy(game)
-		_, succes_u = move_up(gameCopy)
+		_, succes_u, _ = move_up(gameCopy)
 		if succes_r or succes_l or succes_d or succes_u:
 			return False, None
 		else:
@@ -115,6 +115,7 @@ def move_left(game):
     # }
     # return modified;
 	modified = False
+	point = 0
 	for row in game:
 		col = -1
 		for x in range(BOARD_SIZE):
@@ -128,6 +129,7 @@ def move_left(game):
 				continue
 			if row[col] == row[x]:
 				row[col] += row[x]
+				point += row[col]
 				row[x] = 0
 				col = -1
 				modified = True
@@ -141,11 +143,12 @@ def move_left(game):
 				row[x+1] = 0
 				modified = True
 	put_number_on_board(game)
-	return game, modified
+	return game, modified, point
 
 
 def move_right(game):
 	modified = False
+	point = 0
 	for row in game:
 		col = -1
 		for x in range(BOARD_SIZE-1, -1, -1):
@@ -159,6 +162,7 @@ def move_right(game):
 				continue
 			if row[col] == row[x]:
 				row[col] += row[x]
+				point += row[col]
 				row[x] = 0
 				col = -1
 				modified = True
@@ -172,19 +176,19 @@ def move_right(game):
 				row[x-1] = 0
 				modified = True
 	put_number_on_board(game)
-	return game, modified
+	return game, modified, point
 	
 def move_up(game):
 	game = vertical(game)
-	game, modified = move_left(game)
+	game, modified, point = move_left(game)
 	game = vertical(game)
-	return game, modified
+	return game, modified, point
 	
 def move_down(game):
 	game = vertical(game)
-	game, modified = move_right(game)
+	game, modified, point = move_right(game)
 	game = vertical(game)
-	return game, modified
+	return game, modified, point
 				
 
 
