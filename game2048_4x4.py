@@ -17,7 +17,10 @@ def free_space(game):
 
 def put_number_on_board(game, number=-1, x=-1, y=-1):
 	if number < 0 or not number in POWERS:
-		number = random.choice([2, 4])
+		if random.randrange(10) == 4:
+			number = 4
+		else:
+			number = 2
 	if not free_space(game):
 		return False
 	if (x < 0 or x > 3) and (y < 0 or y > 3):
