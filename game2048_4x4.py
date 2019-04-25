@@ -36,10 +36,18 @@ def put_number_on_board(game, number=-1, x=-1, y=-1):
 	game[y][x] = number # Nem
 	return game
 	
+
+def highest_number(game):
+	return max([max(row) for row in game])
+
+	
 def is_over(game):
 	win = [2048 in game[x] for x in range(BOARD_SIZE)]
+	winner = False
+	over = False
 	if True in win:
-		return True, True
+		#return True, True
+		winner = True
 	if not free_space(game):
 		import copy
 		gameCopy = copy.deepcopy(game)
@@ -51,11 +59,14 @@ def is_over(game):
 		gameCopy = copy.deepcopy(game)
 		_, succes_u, _ = move_up(gameCopy)
 		if succes_r or succes_l or succes_d or succes_u:
-			return False, None
+			over = False
+			#return False, None
 		else:
-			return True, False
-	else:
-		return False, None
+			over = True
+			#return True, False
+	#else:
+		#return False, None
+	return over, winner
 		
 def vertical(game):
 	verticalGame = [[0 for _ in range(BOARD_SIZE)] for x in range(BOARD_SIZE)]
