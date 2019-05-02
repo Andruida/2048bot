@@ -92,22 +92,23 @@ async def on_reaction(payload, action):
 	else:
 		match = games["2048"]["4x4"].get(str(payload.user_id))
 		if match != None:
+			matched = False
 			if payload.emoji.is_unicode_emoji() and payload.emoji.name == "➡" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # jobbra
 				match["board"], _, point = game.move_right(match["board"])
-				match["points"] += point
-				await match["message"].edit(content=print_game(match["board"]).format(match["player"].display_name, str(match["points"])+(" (+"+str(point)+")" if point != 0 else ""), game.highest_number(match["board"])))
+				matched = True
 				# print(jobbra)
 				# print(json.dumps(games, indent=4))
 			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬅" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # balra
 				match["board"], _, point = game.move_left(match["board"])
-				match["points"] += point
-				await match["message"].edit(content=print_game(match["board"]).format(match["player"].display_name, str(match["points"])+(" (+"+str(point)+")" if point != 0 else ""), game.highest_number(match["board"])))
+				matched = True
 			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬆" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # fel
 				match["board"], _, point = game.move_up(match["board"])
-				match["points"] += point
-				await match["message"].edit(content=print_game(match["board"]).format(match["player"].display_name, str(match["points"])+(" (+"+str(point)+")" if point != 0 else ""), game.highest_number(match["board"])))
+				matched = True
 			elif payload.emoji.is_unicode_emoji() and payload.emoji.name == "⬇" and match["player"].id == payload.user_id and payload.message_id == match["message"].id: # le
 				match["board"], _, point = game.move_down(match["board"])
+				matched = True
+			
+			if matched:
 				match["points"] += point
 				await match["message"].edit(content=print_game(match["board"]).format(match["player"].display_name, str(match["points"])+(" (+"+str(point)+")" if point != 0 else ""), game.highest_number(match["board"])))
 			over, win = game.is_over(match["board"])
