@@ -8,7 +8,8 @@
 > / Wikipedia /
 
 You can control the numbers by using the given reactions accordingly.  
-You can play it while you're waiting for your friend to return from his journey to the fridge, or while you're watching a loading screen. Its a neat little game, and from now on it can be played anywhere, anytime, on Discord.
+You can play it while you're waiting for your friend to return from his journey to the fridge, or while you're watching a loading screen. Its a neat little game, and from now on it can be played anywhere, anytime, on Discord.  
+And it works cross guild too. You can start a game anywhere in the Discord universe, and you can continue the game in DMs or in another guild armed with the bot.
 
 [Invite Link](https://discordapp.com/oauth2/authorize?client_id=570354704073359390&scope=bot&permissions=0)
 
