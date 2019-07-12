@@ -18,6 +18,7 @@ logger.addHandler(handler)
 
 prefix = ""
 TOKEN = ""
+DBL_TOKEN = ""
 try:
 	with open("config.json") as f:
 		try:
@@ -30,7 +31,8 @@ try:
 		else:
 			if config_file.get("token"):
 				TOKEN = config_file.get("token")
-				prefix = config_file.get("prefix", "@")
+				DBL_TOKEN = config_file.get("dbl_token", "")
+				prefix = config_file.get("prefix", ";")
 			else:
 				print(29*"=")
 				print(" \"token\" is a required value")
@@ -44,6 +46,8 @@ except FileNotFoundError:
 
 bot = commands.Bot(command_prefix=prefix)
 
+bot.myconfig = {"dbl_token" : DBL_TOKEN}
+
 games = {"2048":{"4x4": {}}}
 
 @bot.event
@@ -53,6 +57,11 @@ async def on_message(message):
 @bot.event
 async def on_ready():
 	await bot.change_presence(activity=discord.Activity(name=';2048',type=0))
+	if len(DBL_TOKEN) > 1:
+		try:
+			bot.load_extension("discordbots")
+		except (AttributeError, ImportError):
+			traceback.print_exc()
 	#await bot.change_presence(activity=discord.Activity(name='Test',type=0))
 	print("Everything's all ready to go~")
 #
