@@ -208,21 +208,102 @@ def move_down(game):
 				
 
 
-def print_game(game):
-	print("\n\n")
-	for row in game:
-		print("  ".join(["{"+str(x)+"}" for x in range(BOARD_SIZE)]).format(*row))
+def equalize_number_length(num, length):
+	num = str(num) if num != 0 else " "
+	if len(num) >= length:
+		return num
+	else:
+		return " "*(length - len(num)) + num
+			
+	
+def render_game(board, length=6):
+	txt = ""
+	for row in board:
+		# sor = [equalize_number_length(x, length) for x in row]
+		txt += (" | ".join(["{"+str(x)+"}" for x in range(len(row))]).format(*[equalize_number_length(x, length) for x in row])) +" |\n"
+		
+	return txt + ""
 	
 	
 if __name__ == "__main__":
 	game = create_game()
-	print_game(game)
-	for _ in range(10):
-		game, _ = move_down(game)
-		#print_game(game)
-	print_game(game)
-	game = vertical(game)
-	print_game(game)
-	game = vertical(game)
-	print_game(game)
+	import os
+	from getch import getch
+	# height, width = os.popen('stty size', 'r').read().split()
+	points = 0
+	length = 5
+	winCondition = False
+	height, width = tuple(map(int, os.popen('stty size', 'r').read().split()))
+	gamestr = "Points: 0\nThe greatest number: 0\n\n"
+	gamestr += "-"*(length*BOARD_SIZE+4*(BOARD_SIZE-1)-1)
+	gamestr += "\n"
+	gamestr += render_game(game, length)
+	gamestr += "-"*(length*BOARD_SIZE+4*(BOARD_SIZE-1)-1)
+	gamestr += "\n"
+	gamestr += "\n"*(height-(BOARD_SIZE+6))
+	print(gamestr, end="")
+	quitScreen = False
+	while True:
+		point = 0
+		inp = getch()
+		# print(inp, end="")
+		if quitScreen:
+			if inp == b'y':
+				break
+			elif inp == b'n':
+				quitScreen = False
+		else:
+			if inp == b'w':
+				game, _, point = move_up(game)
+			elif inp == b's':
+				game, _, point = move_down(game)
+			elif inp == b'a':
+				game, _, point = move_left(game)
+			elif inp == b'd':
+				game, _, point = move_right(game)
+			elif inp == b'q' or inp == b'\x03':
+				quitScreen = True
+			else:
+				# continue
+				pass
+		points += point
+		over, win = is_over(game)
+		height, width = tuple(map(int, os.popen('stty size', 'r').read().split()))
+		if quitScreen == True:
+			gamestr = "Do you want to leave this game? (y/n)\n"
+			gamestr += "\n"*(height-2)
+		else:
+			gamestr = "Points: {0}\nThe greatest number: {1}\n\n".format(str(points)+(" (+"+str(point)+")" if point != 0 else ""), highest_number(game))
+			gamestr += "-"*(length*BOARD_SIZE+4*(BOARD_SIZE-1)-1)
+			gamestr += "\n"
+			gamestr += render_game(game, length)
+			gamestr += "-"*(length*BOARD_SIZE+4*(BOARD_SIZE-1)-1)
+			gamestr += "\n"
+			if (not over and not win) or (not over and win and winCondition):
+				gamestr += "\n"*(height-(BOARD_SIZE+6))
+			else:
+				gamestr += "\n"
+				if over and not win:
+					gamestr += "There are no more valid moves!\n"
+					gamestr += "Your score: {0} | Your greatest number: {1}\n".format(str(points), highest_number(game))
+					gamestr += "\n"*(height-(BOARD_SIZE+6+2+2))
+					print(gamestr, end="")
+					break
+				elif not over and win and not winCondition:
+					gamestr += "Congratulations! You reached 2048! You can still play until there are no valid moves left.\n"
+					gamestr += "\n"*(height-(BOARD_SIZE+4))
+					winCondition = True
+				elif over and win:
+					gamestr += "There are no more valid moves! But don't worry, you've already won the game!\n"
+					gamestr += "Your score: {0} | Your greatest number: {1}\n".format(str(points), highest_number(game))
+					gamestr += "\n"*(height-(BOARD_SIZE+6+2+2))
+					print(gamestr, end="")
+					break
+		print(gamestr, end="")
+	print("Goodbye!", end="")
+		
+		
+		
+		
+		
 	
