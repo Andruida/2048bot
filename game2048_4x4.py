@@ -236,7 +236,7 @@ if __name__ == "__main__":
 	length = 5
 	winCondition = False
 	height, width = tuple(map(int, os.popen('stty size', 'r').read().split()))
-	gamestr = "Points: 0\nThe greatest number: 0\n\n"
+	gamestr = "Points: 0\nThe greatest number: 2\n\n"
 	gamestr += "-"*(length*BOARD_SIZE+4*(BOARD_SIZE-1)-1)
 	gamestr += "\n"
 	gamestr += render_game(game, length)
@@ -250,20 +250,20 @@ if __name__ == "__main__":
 		inp = getch()
 		# print(inp, end="")
 		if quitScreen:
-			if inp == b'y':
+			if inp == 'y':
 				break
-			elif inp == b'n':
+			elif inp == 'n':
 				quitScreen = False
 		else:
-			if inp == b'w':
+			if inp == 'w':
 				game, _, point = move_up(game)
-			elif inp == b's':
+			elif inp == 's':
 				game, _, point = move_down(game)
-			elif inp == b'a':
+			elif inp == 'a':
 				game, _, point = move_left(game)
-			elif inp == b'd':
+			elif inp == 'd':
 				game, _, point = move_right(game)
-			elif inp == b'q' or inp == b'\x03':
+			elif inp == 'q' or inp == '\x03':
 				quitScreen = True
 			else:
 				# continue
