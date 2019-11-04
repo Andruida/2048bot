@@ -149,7 +149,7 @@ async def game2048command(ctx):
 			await answer.add_reaction("⬇") # le
 		else:
 			try:
-				await match["message"].edit(content="Játék máshol folytatásra került.", delete_after=20.0)
+				await match["message"].edit(content="The game is continued elsewhere.", delete_after=20.0)
 			except:
 				pass
 			match["player"] = ctx.message.author
